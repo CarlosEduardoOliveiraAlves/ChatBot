@@ -6,11 +6,28 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-     /* Ajustar o background */
-     background-image: url("/static/img/login-bg.png");
-     background-size: cover; /* Faz com que a imagem cubra todo o espaço */
-     background-position: center; /* Centraliza a imagem */
-     background-repeat: no-repeat; /* Impede que a imagem se repita */
+    /* Ajustar o background */
+    background-image: url("/static/img/login-bg.png");
+    background-size: cover; /* Faz com que a imagem cubra todo o espaço */
+    background-position: center; /* Centraliza a imagem */
+    background-repeat: no-repeat; /* Impede que a imagem se repita */
+}
+
+.flash-messages {
+    position: absolute; /* Posiciona a mensagem em relação ao viewport */
+    top: 20px; /* Distância do topo */
+    right: 20px; /* Distância da direita */
+    z-index: 1000; /* Para garantir que a mensagem fique sobre outros elementos */
+}
+
+.flash-message {
+    background-color: #ffcccc; /* Cor de fundo verde clara */
+    color: #ff3c01; /* Texto verde escuro */
+    border: 1px solid #ff9393; /* Borda verde */
+    border-radius: 5px; /* Bordas arredondadas */
+    padding: 10px 15px; /* Espaçamento interno */
+    margin-bottom: 10px; /* Espaço entre mensagens */
+    transition: opacity 0.5s ease; /* Animação de opacidade */
 }
 
 h1 {
@@ -22,6 +39,7 @@ form {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 20rem;
 }
 
 input {

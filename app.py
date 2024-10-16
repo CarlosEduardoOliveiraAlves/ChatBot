@@ -6,11 +6,18 @@ from groq import Groq
 # Carregar as variáveis de ambiente do arquivo .env
 load_dotenv()
 
+# Cria uma instância do aplicativo Flask
 app = Flask(__name__)
-app.secret_key = 'chave_secreta'  # Necessário para usar 'flash' para mensagens
+
+# Necessário para usar 'flash' para mensagens de erro
+app.secret_key = 'chave_secreta'
 
 # Criar o cliente Groq
+
+# Obtém a chave API da variável de ambiente (definida no arquivo .env).
 api_key = os.environ.get("GROQ_API_KEY")
+
+# Cria um cliente da API do Groq para interagir com o chatbot
 client = Groq(api_key=api_key)
 
 # Configurar o prompt do sistema
@@ -22,16 +29,14 @@ system_prompt = {
 # Inicializar o histórico do chat
 chat_history = [system_prompt]
 
-from flask import Flask, render_template, request, redirect, url_for
-
-app = Flask(__name__)
-
 # Rota inicial redirecionando para o login
 @app.route('/')
 def home():
     return redirect(url_for('login'))
 
 # Rota para a página de login
+
+# Define a rota /login que aceita métodos GET (para exibir o formulário de login) e POST (para processar o login).
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
