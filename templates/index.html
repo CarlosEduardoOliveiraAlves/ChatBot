@@ -2,14 +2,153 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        #container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        #chat {
+            flex: 1;
+            margin-right: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: 400px;
+            overflow-y: scroll;
+        }
+        #form-container {
+            width: 250px;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            margin: 10px 0;
+        }
+        .user {
+            text-align: right;
+            color: #007bff;
+        }
+        .assistant {
+            text-align: left;
+            color: #28a745;
+        }
+    </style>
 </head>
 <body>
     <h1>Chatbot</h1>
-    <div id="chat"></div>
-    <form action="/send" method="post">
-        <input type="text" name="user_input" placeholder="Type your message here..." required>
-        <button type="submit">Send</button>
-    </form>
+    <div id="container">
+        <div id="chat"></div>
+        <div id="form-container">
+            <form id="chatForm">
+                <div class="form-group">
+                    <input type="number" id="pressao_sistolica" placeholder="Sistólica" required>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="pressao_diastolica" placeholder="Diastólica" required>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="altura" placeholder="Altura (cm)" required>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="peso" placeholder="Peso (kg)" required>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="idade" placeholder="Idade" required>
+                </div>
+                <button type="submit">Enviar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('chatForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Capturar os valores dos campos de input
+            var pressaoSistolica = document.getElementById('pressao_sistolica').value;
+            var pressaoDiastolica = document.getElementById('pressao_diastolica').value;
+            var altura = document.getElementById('altura').value;
+            var peso = document.getElementById('peso').value;
+            var idade = document.getElementById('idade').value;
+
+            // Exibir a mensagem do usuário no chat
+            var chat = document.getElementById('chat');
+            var userMessage = document.createElement('div');
+            userMessage.className = 'message user';
+            userMessage.textContent = `Pressão Sistólica: ${pressaoSistolica}, Pressão Diastólica: ${pressaoDiastolica}, Altura: ${altura}, Peso: ${peso}, Idade: ${idade}`;
+            chat.appendChild(userMessage);
+
+            // Enviar a mensagem ao servidor via AJAX
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/send', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText).response;
+
+                    // Exibir a resposta do chatbot no chat
+                    var assistantMessage = document.createElement('div');
+                    assistantMessage.className = 'message assistant';
+                    assistantMessage.textContent = response;
+                    chat.appendChild(assistantMessage);
+
+                    // Scroll automático para a última mensagem
+                    chat.scrollTop = chat.scrollHeight;
+                }
+            };
+            xhr.send('pressao_sistolica=' + encodeURIComponent(pressaoSistolica) + 
+                     '&pressao_diastolica=' + encodeURIComponent(pressaoDiastolica) +
+                     '&altura=' + encodeURIComponent(altura) +
+                     '&peso=' + encodeURIComponent(peso) +
+                     '&idade=' + encodeURIComponent(idade));
+
+            // Limpar os campos de input
+            document.getElementById('pressao_sistolica').value = '';
+            document.getElementById('pressao_diastolica').value = '';
+            document.getElementById('altura').value = '';
+            document.getElementById('peso').value = '';
+            document.getElementById('idade').value = '';
+        });
+    </script>
 </body>
 </html>
