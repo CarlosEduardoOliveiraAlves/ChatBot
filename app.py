@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash
 from dotenv import load_dotenv
 import os
 from groq import Groq
@@ -7,6 +7,7 @@ from groq import Groq
 load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = 'chave_secreta'  # Necessário para usar 'flash' para mensagens
 
 # Criar o cliente Groq
 api_key = os.environ.get("GROQ_API_KEY")
@@ -21,9 +22,35 @@ system_prompt = {
 # Inicializar o histórico do chat
 chat_history = [system_prompt]
 
+from flask import Flask, render_template, request, redirect, url_for
+
+app = Flask(__name__)
+
+# Rota inicial redirecionando para o login
 @app.route('/')
 def home():
+    return redirect(url_for('login'))
+
+# Rota para a página de login
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        # Verificação simples de usuário e senha
+        if username == 'admin' and password == 'admin':
+            return redirect(url_for('dashboard'))  # Redireciona para a página principal após o login
+        else:
+            flash('Usuário ou senha incorretos. Tente novamente.')  # Mensagem de erro
+
+    return render_template('login.html')
+
+# Rota para a página principal ou dashboard após o login
+@app.route('/dashboard')
+def dashboard():
     return render_template('index.html')
+
 
 @app.route('/send', methods=['POST'])
 def send():
