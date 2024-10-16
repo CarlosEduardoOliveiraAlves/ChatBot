@@ -6,6 +6,11 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
+     /* Ajustar o background */
+     background-image: url("/static/img/login-bg.png");
+     background-size: cover; /* Faz com que a imagem cubra todo o espaço */
+     background-position: center; /* Centraliza a imagem */
+     background-repeat: no-repeat; /* Impede que a imagem se repita */
 }
 
 h1 {
