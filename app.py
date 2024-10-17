@@ -13,21 +13,23 @@ app = Flask(__name__)
 app.secret_key = 'chave_secreta'
 
 # Criar o cliente Groq
-
-# Obtém a chave API da variável de ambiente (definida no arquivo .env).
 api_key = os.environ.get("GROQ_API_KEY")
 
-# Cria um cliente da API do Groq para interagir com o chatbot
+# Certifique-se de que a chave API foi carregada corretamente
+if not api_key:
+    raise ValueError("A chave da API do Groq não foi encontrada no arquivo .env")
+
 client = Groq(api_key=api_key)
 
 # Configurar o prompt do sistema
 system_prompt = {
     "role": "system",
-    "content": "Você é um cardiologista, eu lhe darei informações como minha pressão sistólica e a pressão diastólica. Lhe darei minha idade, peso e altura. A partir desses dados me dê um diagnóstico com base em diagnósticos de outros médicos ou dados."
+    "content": "Você é um cardiologista, eu lhe darei informações como minha pressão sistólica e a pressão diastólica. Lhe darei minha idade, peso e altura. A partir desses dados me dê um diagnóstico com base na OMS, não precisa ser uma resposta muito grande, no final avalie como Perigoso, Boa ou Ótima."
 }
 
 # Inicializar o histórico do chat
-chat_history = [system_prompt]
+chat_history = [system_prompt]  # Certifique-se de que o system_prompt esteja no histórico
+historico_diagnosticos = []  # Lista para armazenar os dados de diagnóstico
 
 # Rota inicial redirecionando para o login
 @app.route('/')
@@ -35,8 +37,6 @@ def home():
     return redirect(url_for('login'))
 
 # Rota para a página de login
-
-# Define a rota /login que aceita métodos GET (para exibir o formulário de login) e POST (para processar o login).
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -56,41 +56,56 @@ def login():
 def dashboard():
     return render_template('index.html')
 
+@app.route('/chatbot', methods=['GET', 'POST'])
+def chatbot():
+    if request.method == 'POST':
+        try:
+            pressao_sistolica = request.form['pressao_sistolica']
+            pressao_diastolica = request.form['pressao_diastolica']
+            altura = request.form['altura']
+            peso = request.form['peso']
+            idade = request.form['idade']
+            
+            # Criar a mensagem do usuário com os dados fornecidos
+            user_input = f"Pressão Sistólica: {pressao_sistolica}, Pressão Diastólica: {pressao_diastolica}, Altura: {altura}, Peso: {peso}, Idade: {idade}"
+            chat_history.append({"role": "user", "content": user_input})
+            
+            # Fazer a chamada para completar o chat
+            response = client.chat.completions.create(
+                model="llama3-70b-8192",
+                messages=chat_history,
+                max_tokens=1000,
+                temperature=1.2
+            )
+            
+            # Obter a resposta do assistente
+            response_content = response.choices[0].message.content
+            
+            # Adicionar ao histórico
+            chat_history.append({"role": "assistant", "content": response_content})
+            
+            # Salvar os dados no histórico de diagnósticos
+            diagnostico = {
+                'pressao_sistolica': pressao_sistolica,
+                'pressao_diastolica': pressao_diastolica,
+                'altura': altura,
+                'peso': peso,
+                'idade': idade,
+                'diagnostico': response_content
+            }
+            historico_diagnosticos.append(diagnostico)
+            
+            # Retornar a resposta do chatbot
+            return jsonify({"response": response_content})
 
-@app.route('/send', methods=['POST'])
-def send():
-    # Obter os valores dos campos de input
-    pressao_sistolica = request.form['pressao_sistolica']
-    pressao_diastolica = request.form['pressao_diastolica']
-    altura = request.form['altura']
-    peso = request.form['peso']
-    idade = request.form['idade']
+        except Exception as e:
+            return jsonify({"error": str(e)})  # Captura e retorna o erro em formato JSON
     
-    # Criar a mensagem do usuário com os dados fornecidos
-    user_input = f"Pressão Sistólica: {pressao_sistolica}, Pressão Diastólica: {pressao_diastolica}, Altura: {altura}, Peso: {peso}, Idade: {idade}"
-    
-    # Adicionar a entrada do usuário ao histórico do chat
-    chat_history.append({"role": "user", "content": user_input})
+    return render_template('index.html')
 
-    # Fazer a chamada para completar o chat
-    response = client.chat.completions.create(
-        model="llama3-70b-8192",
-        messages=chat_history,
-        max_tokens=1000,
-        temperature=1.2
-    )
-
-    # Obter a resposta do assistente
-    response_content = response.choices[0].message.content
-
-    # Adicionar a resposta ao histórico do chat
-    chat_history.append({
-        "role": "assistant",
-        "content": response_content
-    })
-
-    # Retornar a resposta como JSON
-    return jsonify({"response": response_content})
+@app.route('/historico')
+def historico():
+    return render_template('historico.html', historico=historico_diagnosticos)
 
 if __name__ == "__main__":
     app.run(debug=True)

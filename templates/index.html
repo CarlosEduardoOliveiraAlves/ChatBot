@@ -7,6 +7,14 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 </head>
 <body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <ul>
+            <li><a href="{{ url_for('chatbot') }}">Chatbot</a></li>
+            <li><a href="{{ url_for('historico') }}">Histórico Diário</a></li>
+        </ul>
+    </nav>
     
     <h1>Chatbot</h1>
     <div id="container">
@@ -53,7 +61,7 @@
 
             // Enviar a mensagem ao servidor via AJAX
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/send', true);
+            xhr.open('POST', '/chatbot', true);  // Corrigido para /chatbot
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.onload = function() {
                 if (xhr.status === 200) {
@@ -70,10 +78,10 @@
                 }
             };
             xhr.send('pressao_sistolica=' + encodeURIComponent(pressaoSistolica) + 
-                     '&pressao_diastolica=' + encodeURIComponent(pressaoDiastolica) +
-                     '&altura=' + encodeURIComponent(altura) +
-                     '&peso=' + encodeURIComponent(peso) +
-                     '&idade=' + encodeURIComponent(idade));
+                    '&pressao_diastolica=' + encodeURIComponent(pressaoDiastolica) +
+                    '&altura=' + encodeURIComponent(altura) +
+                    '&peso=' + encodeURIComponent(peso) +
+                    '&idade=' + encodeURIComponent(idade));
 
             // Limpar os campos de input
             document.getElementById('pressao_sistolica').value = '';

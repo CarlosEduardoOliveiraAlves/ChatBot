@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot e Histórico de Pressão</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/historico.css') }}">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <ul>
+            <li><a href="{{ url_for('chatbot') }}">Chatbot</a></li>
+            <li><a href="{{ url_for('historico') }}">Histórico Diário</a></li>
+        </ul>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <div class="container">
+        <!-- Histórico Diário -->
+        <aside class="sidebar">
+            <h2>Histórico Diário</h2>
+            <ul id="days-list">
+                {% for dia in historico %}
+                    <li onclick="showData('{{ dia.data }}')">{{ dia.data }}</li>
+                {% endfor %}
+            </ul>
+        </aside>
+
+
+        <main class="content">
+            <h2>Detalhes do Dia</h2>
+            <div id="details">
+                <!-- Aqui aparecerão os detalhes do dia selecionado -->
+                <p>Selecione um dia para visualizar os dados.</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Exemplo de função para mostrar os dados do histórico
+        function showData(dayId) {
+            const details = {
+                day1: {
+                    pressao_sistolica: "120",
+                    pressao_diastolica: "80",
+                    diagnostico: "Normal"
+                },
+                day2: {
+                    pressao_sistolica: "140",
+                    pressao_diastolica: "90",
+                    diagnostico: "Pressão alta"
+                }
+            };
+
+            const selectedDay = details[dayId];
+            document.getElementById('details').innerHTML = `
+                <p><strong>Pressão Sistólica:</strong> ${selectedDay.pressao_sistolica}</p>
+                <p><strong>Pressão Diastólica:</strong> ${selectedDay.pressao_diastolica}</p>
+                <p><strong>Diagnóstico:</strong> ${selectedDay.diagnostico}</p>
+            `;
+        }
+    </script>
+</body>
+</html>
